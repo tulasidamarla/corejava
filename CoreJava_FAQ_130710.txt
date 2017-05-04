@@ -1,4 +1,4 @@
-what is the difference between encapsulation,abstraction and polymorphism?
+what is encapsulation,inheritance and polymorphism?
 Ans:
 Encapsulation
 -------------
@@ -163,7 +163,7 @@ abstract class Abs{
 class A2 extends Abs{
 	public void func1()
 	{
-		System.out.println(ìin func1î);
+		System.out.println(‚Äúin func1‚Äù);
 	}
 }
 
@@ -186,7 +186,7 @@ Ex1: Member inner class.
 				int i;
 				public void funIn()
 				{
-					System.out.println(ìinside funIn of Inner1î);
+					System.out.println(‚Äúinside funIn of Inner1‚Äù);
 					x=25;
 					funOu();
 				}
@@ -218,17 +218,17 @@ Ex2: Static inner class:
 			static int y;
 			static class Sinner1{
 				public static void funs1(){
-					System.out.println(ìinside funs1 of Sinner1î);
+					System.out.println(‚Äúinside funs1 of Sinner1‚Äù);
 					y=y+1;
 				}
 				public void fun2(){
-					System.out.println(ìinside fun2 of Sinner1î);
+					System.out.println(‚Äúinside fun2 of Sinner1‚Äù);
 					x=x+1; //compilation error.
 				}
 			}
 			
 			public void funOu1(){
-				System.out.println(ìinside funOu1 of Outer2î);
+				System.out.println(‚Äúinside funOu1 of Outer2‚Äù);
 				Sinner1 s1=new Sinner1();
 				s1.fun2();
 				Sinner1.funs1();
@@ -453,9 +453,9 @@ Teacher and Student. Multiple students can associate with single teacher and sin
 
 Aggregation is a specialised form of Association where all objects have their own lifecycle, but there is ownership and child objects can not belong to another parent object.
 Ex:
-Department and teacher. A single teacher can not belong to multiple departments, but if we delete the department, the teacher object will not be destroyed. We can think about it as a ìhas-aî relationship.
+Department and teacher. A single teacher can not belong to multiple departments, but if we delete the department, the teacher object will not be destroyed. We can think about it as a ‚Äúhas-a‚Äù relationship.
 
-Composition is again specialised form of Aggregation and we can call this as a ìdeathî relationship. It is a strong type of Aggregation. Child object does not have its lifecycle and if parent object is deleted, all child objects will also be deleted.
+Composition is again specialised form of Aggregation and we can call this as a ‚Äúdeath‚Äù relationship. It is a strong type of Aggregation. Child object does not have its lifecycle and if parent object is deleted, all child objects will also be deleted.
 Ex:
 House can contain multiple rooms - there is no independent life of room and any room can not belong to two different houses. If we delete the house - room will automatically be deleted.
 
@@ -1136,7 +1136,7 @@ Example:
 		} 
 	}
 
-Note: Other uses of CountDownLatch include testing the performance of a method with concurrent invocations from a number of threads. It uses two latches, a ìstarting gateî and an ìending gateî. The starting gate is initialized with a count of one; the ending gate is initialized with a count equal to the number of worker threads. The first thing each worker thread does is wait on the starting gate; this ensures that none of them starts working until they all are ready to start. The last thing each does is count down on the ending gate; this allows the master
+Note: Other uses of CountDownLatch include testing the performance of a method with concurrent invocations from a number of threads. It uses two latches, a ‚Äústarting gate‚Äù and an ‚Äúending gate‚Äù. The starting gate is initialized with a count of one; the ending gate is initialized with a count equal to the number of worker threads. The first thing each worker thread does is wait on the starting gate; this ensures that none of them starts working until they all are ready to start. The last thing each does is count down on the ending gate; this allows the master
 thread to wait efficiently until the last of the worker threads has finished, so it can calculate the elapsed time. 
 
 Here is an example:
@@ -1177,5 +1177,5 @@ what is the difference between multiple processes and multiple threads?
 Ans:
 The essential difference is that while each process has a complete set of its own variables,
 threads share the same data.However, shared variables make communication between threads more efficient and easier to program than interprocess communication. Threads are more
-ìlightweightî than processesóit takes less overhead to create and destroy individual threads than it does to launch new processes.
+‚Äúlightweight‚Äù than processes‚Äîit takes less overhead to create and destroy individual threads than it does to launch new processes.
 
