@@ -24,6 +24,11 @@ equals() method with inheritance
 • If subclasses can have their own notion of equality, then the symmetry requirement forces you to use the getClass test.i.e.
 		if (getClass() != obj.getClass())
 			return false;
+why it forces symmetry?
+Ans: For ex if e is an Employee object and m is a Manager object, both of which happen to have the same name, salary, and hire date.
+If Employee.equals uses an instanceof test, the call returns true. But that means that the reverse call m.equals(e) 
+also needs to return true.			
+
 • If the notion of equality is fixed in the superclass, then you can use the instanceof test and allow objects of different 
 subclasses to be equal to one another.
 		if(!(this instanceof other))
