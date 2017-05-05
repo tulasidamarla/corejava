@@ -75,6 +75,7 @@ Note: Now serializing the dog object saves dog object successfully without colla
 	}
 
 Ex:
+
 	private void writeObject(ObjectOutputStream os) {
 		try {
 			os.defaultWriteObject();
