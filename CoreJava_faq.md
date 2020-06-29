@@ -1,23 +1,22 @@
-what is encapsulation,inheritance and polymorphism?
-Ans:
+what is encapsulation,inheritance and polymorphism?<br>
 Encapsulation
 -------------
 The ability to make changes in your implementation code without breaking the code of others who use your code is a key benefit of encapsulation.
-By hiding implementation details, you can rework your method code (perhaps also altering the way variables are used by your class) without forcing a change in the code that calls your changed method.If you want maintainability, flexibility, and extensibility ,your design must include encapsulation.
-1)Keep instance variables protected (with an access modifier, often private).
-2)Make public accessor methods, and force calling code to use those methods
-rather than directly accessing the instance variable.
-public class Box {
-	// protect the instance variable; only an instance of Box can access it
-	private int size;
-	// Provide public getters and setters
-	public int getSize() {
-		return size;
+By hiding implementation details, you can rework your method code (perhaps also altering the way variables are used by your class) without forcing a change in the code that calls your changed method.If you want maintainability, flexibility, and extensibility ,your design must include encapsulation.<br>
+1)Keep instance variables protected (with an access modifier, often private).<br>
+2)Make public accessor methods, and force calling code to use those methods rather than directly accessing the instance variable.<br>
+
+	public class Box {
+		// protect the instance variable; only an instance of Box can access it
+		private int size;
+		// Provide public getters and setters
+		public int getSize() {
+			return size;
+		}
+		public void setSize(int newSize) {
+			size = newSize;
+		}
 	}
-	public void setSize(int newSize) {
-		size = newSize;
-	}
-}
 
 how useful is the previous code? It doesn't even do any validation or processing. What benefit can there be from having getters and setters that add no additional functionality? The point is, you can change your mind later, and add more code to your methods without breaking your API. Even if today you don't think you really need validation or processing of the data, good OO design dictates that you plan for the future. To be safe, force calling code to go through your
 methods rather than going directly to instance variables. 
