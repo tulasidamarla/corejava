@@ -217,6 +217,7 @@ the readExternal and writeExternal methods are public. In particular, readExtern
 
 Serialization for Singleton<br>
 ---------------------------<br>
+
 	public class Elvis {
 		public static final Elvis INSTANCE = new Elvis();
 		private Elvis() { ... }
