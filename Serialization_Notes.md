@@ -103,11 +103,12 @@ Note: By default, If a super class/interface implements Serializable all subclas
 
 What if a super class is not serializable but subclass is serializable?<br>
 Ans:During deserialization any instance variables inherited from that superclass will be reset to the values they were given during <br> the original construction of the object. This is because the nonserializable class constructor will run. For ex,
-	class Super{
+	
+ 	class Super {
 		int x=42;
 	}
 
-	class Sub extends Super implements Serializable{
+	class Sub extends Super implements Serializable {
 		int y;
 		public Sub(int x,int y) {
 			this.x = x;
