@@ -1,11 +1,17 @@
-what is encapsulation,inheritance and polymorphism?<br>
-Encapsulation
--------------
-The ability to make changes in your implementation code without breaking the code of others who use your code is a key benefit of encapsulation.
-By hiding implementation details, you can rework your method code (perhaps also altering the way variables are used by your class) without forcing a change in the code that calls your changed method.If you want maintainability, flexibility, and extensibility ,your design must include encapsulation.<br>
-1)Keep instance variables protected (with an access modifier, often private).<br>
-2)Make public accessor methods, and force calling code to use those methods rather than directly accessing the instance variable.<br>
+# FAQ
+## _what is encapsulation,inheritance and polymorphism?_
 
+### _Encapsulation_
+
+- Hiding the implementation details is called encapsulation.
+  - The key benefit of encapsulation is that code changes won't break the code of others.
+  - By hiding implementation details, code can be reworked perhaps altering the way variables are used by the class without forcing a
+    change in the code that calls the changed method.
+  - For maintainability, flexibility, and extensibility ,a class design must include encapsulation.
+- For proper encapsulation    
+  - Keep instance variables protected (with an access modifier, often private).
+  - Make public accessor methods, and force calling code to use those methods rather than directly accessing the instance variable.
+```
 	public class Box {
 		// protect the instance variable; only an instance of Box can access it
 		private int size;
@@ -17,30 +23,32 @@ By hiding implementation details, you can rework your method code (perhaps also 
 			size = newSize;
 		}
 	}
+```
+- The above code is not useful as it doesn't do any validations.
+- Because of the encapsulation, the code can be changed at later point of time to include validations.
+  
+## Inheritance:
 
-how useful is the previous code? It doesn't even do any validation or processing. What benefit can there be from having getters and setters that add no additional functionality? The point is, you can change your mind later, and add more code to your methods without breaking your API. Even if today you don't think you really need validation or processing of the data, good OO design dictates that you plan for the future. To be safe, force calling code to go through your
-methods rather than going directly to instance variables. 
+- Inheritance relationships can be created in Java by extending a class.
+- The two most common reasons to use inheritance are
+  - To promote code reuse
+  - To use polymorphism
 
-Inheritance:
-------------
-you can create inheritance relationships in Java by extending a class. It's also important to understand that the two most common reasons to use inheritance are
-1)To promote code reuse
-2)To use polymorphism
+## Polymorphism
 
-Polymorphism
-------------
-Any Java object that can pass more than one IS-A test can be considered polymorphic. Other than objects of type Object, all Java objects are polymorphic in that they pass the IS-A test for their own type and for class Object.
+- Any Java object that can pass more than one IS-A test can be considered polymorphic.
+- Other than objects of type Object, all Java objects are polymorphic in that they pass the IS-A test for their own type and for class
+  Object.
 
-Abstraction
-------------
-Abstraction in Java is achieved by using interface and abstract class in Java. An interface or abstract class is something which is not concrete , something which is incomplete.
+## Abstraction
 
-e.g. You create an interface called Server which has start() and stop() method. This is called abstraction of Server because every server should have way to start and stop and details may differ.
+- Abstraction in Java is achieved either by using interface and abstract class in Java.
+- Abstraction defines methods or operations. All implementation classes must implement the methods supported by the Abstraction.
 
 
-1)What are the disadvatnages of method overloading?
-Ans:see the exampl below.
-
+## What are the disadvatnages of method overloading?
+Ans: Method overloading can cause ambiguity if not defined properly
+```
 public class MethodOVerloadingTest {
 
 	/**
@@ -61,48 +69,35 @@ public class MethodOVerloadingTest {
 	}
 
 }
+```
 
-The above code gives java.lang.Error with description which contains ambiguity message.
-*******************************************************************************************
-2)what is the output of the following code?
-
-class Super
-{
-	public static void method1()
-	{
+- The above code gives java.lang.Error when invoked with both arguments of type `int` due to ambiguity.
+ 
+## what is the output of the following code?
+```
+class Super {
+	public static void method1() {
 		System.out.println("inside super class method");
 	}
-	
 }
-class Sub extends Super
-{
-	public void method1()
-	{
+class Sub extends Super {
+	public void method1(){
 		System.out.println("inside sub class method");
 	}
 }
-
-
 public class StaticMethodTest {
-
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		Super s1=new Sub();
 		s1.method1();
 	}
-
 }
-
-Ans: The above code gives compilation error, stating static method cannot be overridden.
-(same is the case with private method in the super class and public method in the subclass).
-
-If, you change the subclass method also to static, the output will come from super class method. i.e.  inside super class method.
--->for private method in the super class and public method in the subclass, the scenario is entirely different. you cannot call using super class reference. 
-*******************************************************************************************
-3)Difference between Late Binding and Dynamic polymorphism
+```
+- The above code gives compilation error, because static method cannot be overridden.
+- The same error appears private method in the super class and public method in the subclass because it is not visible on the super class.
+- Changing the subclass method to static, the output will be `inside super class method`.
+ 
+## Difference between Late Binding and Dynamic polymorphism
 
 In Dynamic polymorphism the function to be executed is decided at runtime but the function has a body at the time of compilation. Where as in Late binding the body is not associated at the compilation time.. Late binding can be coded using interface.
 
