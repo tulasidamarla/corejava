@@ -27,27 +27,30 @@
 - The above code is not useful as it doesn't do any validations.
 - Because of the encapsulation, the code can be changed at later point of time to include validations.
   
-## Inheritance:
+### _Inheritance_
 
 - Inheritance relationships can be created in Java by extending a class.
 - The two most common reasons to use inheritance are
   - To promote code reuse
   - To use polymorphism
 
-## Polymorphism
+### _Polymorphism_
 
 - Any Java object that can pass more than one IS-A test can be considered polymorphic.
 - Other than objects of type Object, all Java objects are polymorphic in that they pass the IS-A test for their own type and for class
   Object.
 
-## Abstraction
+### _Abstraction_
 
 - Abstraction in Java is achieved either by using interface and abstract class in Java.
 - Abstraction defines methods or operations. All implementation classes must implement the methods supported by the Abstraction.
 
 
-## What are the disadvatnages of method overloading?
-Ans: Method overloading can cause ambiguity if not defined properly
+## _What are the disadvatnages of method overloading?_
+
+- Method overloading can cause ambiguity if not defined properly
+- The below code gives java.lang.Error when invoked with both arguments of type `int` due to ambiguity.
+
 ```
 public class MethodOVerloadingTest {
 
@@ -70,10 +73,9 @@ public class MethodOVerloadingTest {
 
 }
 ```
-
-- The above code gives java.lang.Error when invoked with both arguments of type `int` due to ambiguity.
  
-## what is the output of the following code?
+## _What is the output of the following code?_
+
 ```
 class Super {
 	public static void method1() {
@@ -93,58 +95,51 @@ public class StaticMethodTest {
 	}
 }
 ```
+
 - The above code gives compilation error, because static method cannot be overridden.
 - The same error appears private method in the super class and public method in the subclass because it is not visible on the super class.
 - Changing the subclass method to static, the output will be `inside super class method`.
  
-## Difference between Late Binding and Dynamic polymorphism
+## _Difference between Late Binding and Dynamic polymorphism_
 
-In Dynamic polymorphism the function to be executed is decided at runtime but the function has a body at the time of compilation. Where as in Late binding the body is not associated at the compilation time.. Late binding can be coded using interface.
+- In Dynamic polymorphism the function to be executed is decided at runtime but the function body is present at the time of compilation.
+- In Late binding the function body is not associated at the compilation time. 
+- Late binding is highly dynamic than Dynamci polymorphism.	 
 
-Note:Late binding is highly dynamic than Dynamci polymorphism.	 
-
-Example:
-
-Class ABC
-{
-public void fun1(XYZ x1)
-{
-x1.fun2() ;
-}
-}
-
-interface XYZ
-{
-void fun2();
-}
-
-Class A implements XYZ
-{
-	public void fun2()
-	{
-	----
-	----
+```java
+Class ABC {
+	public void fun1(XYZ x1) {
+		x1.fun2() ;
 	}
 }
 
-class Test
-{
-public static void main()
-{
-A a1=new A();
-ABC abc=new ABC();
-abc.fun1(a1);
-}
+interface XYZ {
+	void fun2();
 }
 
+Class A implements XYZ {
+	public void fun2() {
+		# code
+	}
+}
 
+class Test {
+	public static void main() {
+		A a1=new A();
+		ABC abc=new ABC();
+		abc.fun1(a1);
+	}
+}
+```
+- Late binding is used for developing APIs and later implementation can be provided at runtime.
+  - For ex Jdbc code can be written by using Jdbc Api methods. During runtime, the driver libraries which contain implementation of JDBC
+    Api are binded to the code.
+    
 
+## _Can an abstract class have main method?_ 
 
-Abstract class
-------------------
-
-An abstract class can have main method. 
-
+- Yes, main method can be written and also executed from abstract class.
+```
 abstract class Abs{
 	int x,y;
 	public abstract void func1();
@@ -160,88 +155,84 @@ class A2 extends Abs{
 		System.out.println(“in func1”);
 	}
 }
+```
 
-Note: we cannot access private members of super class with subclass object.
-Note: Access specifiers are not applicable to local variables.
-*******************************************************************************************
-Inner classes:
---------------
-A class defined inside another class is called Inner class.There are 4 types of inner classes
-1) Member inner classes: if we define a class inside another class just as a member of that class (like variables and methods), we call it as Member inner class.
-2) Static inner classes: if we define any inner class as static then it is called Static inner class.
-3) Local inner classes:
-4) Anonymous inner classes
+## _What are inner classes?_
 
-Ex1: Member inner class.
+- A class defined inside another class is called Inner class.
+- There are 4 types of inner classes
+  - `Member inner classes:` Defines a class inside another class just as a member of that class (like variables and methods).
+  - `Static inner classes:` Defines inner class as static.
+  - `Local inner classes:` Defines inner class inside a method.
+  - `Anonymous inner classes:` Defines an inner class without a name. It usually creates an object directly without defining the class.
 
-		class Outer1{
-			int x;
-			class Inner1{
-				int i;
-				public void funIn()
-				{
-					System.out.println(“inside funIn of Inner1”);
-					x=25;
-					funOu();
-				}
-			}
-			public void funOu(){
-				x=x+1;
-				Inner1 in1=new Inner1();
-				in1.i = 20;
-				System.out.println(in1.i);
-			}
-			
-			public static void main(String args[]){
-				Outer1.Inner1 ou1=new Outer1().new Inner1();
-			}
+### _Member inner class_
+
+```java
+class Outer{
+	int x;
+	class Inner{
+		int i;
+		public void funIn()
+		{
+			System.out.println(“inside funIn of Inner1”);
+			x=25;
+			funOu();
 		}
+	}
+	public void funOu(){
+		x=x+1;
+		Inner in1=new Inner();
+		in1.i = 20;
+		System.out.println(in1.i);
+	}
+	
+	public static void main(String args[]){
+		Outer.Inner ou1=new Outer().new Inner();
+	}
+}
+```
+- `new Outer().new Inner()` is the syntax to create an object of the inner class from from outside the class.
+- For an inner class any member of outer class is visible (either static or non-static).
+- Member inner classes cannot define a static member inside an inner class. Compilation error occurs.
+- If Inner class are declared private, then outer class can only access it.
+- Inner class can extend any class that is available for outer class, but unnecessary.
 
-Notes:
-------
-1) Outer1.Inner1 ou1=new Outer1().new Inner1(); is the syntax to create an object for inner class from a static function from outer class or from outside the class.
-2) For an inner class any member of outer class is visible (either static or non-static).
-3) Member inner classes should not have any static members. i.e. you cannot define a static member inside an inner class. It will show compiler error.
-4) Inner class can be declared as private. Then outer class can only access it.
-5) Inner class can extend any class that is available for outer class.
-
-Ex2: Static inner class:
-
-		class Outer2{
-			int x;
-			static int y;
-			static class Sinner1{
-				public static void funs1(){
-					System.out.println(“inside funs1 of Sinner1”);
-					y=y+1;
-				}
-				public void fun2(){
-					System.out.println(“inside fun2 of Sinner1”);
-					x=x+1; //compilation error.
-				}
-			}
-			
-			public void funOu1(){
-				System.out.println(“inside funOu1 of Outer2”);
-				Sinner1 s1=new Sinner1();
-				s1.fun2();
-				Sinner1.funs1();
-			}
-		
-			public static void main(String args[]){
-				Sinner1 s2=new Sinner1();
-				s2.fun2();
-				Sinner1.funs1();
-			}
+### _Static inner class_
+```java
+class Outer{
+	int x;
+	static int y;
+	static class Sinner{
+		public static void funs1(){
+			System.out.println(“inside funs1 of Sinner1”);
+			y=y+1;
+		}
+		public void fun2(){
+			System.out.println(“inside fun2 of Sinner1”);
+			x=x+1; //compilation error.
+		}
+	}
+	
+	public void funOu1(){
+		System.out.println(“inside funOu1 of Outer2”);
+		Sinner s1=new Sinner();
+		s1.fun2();
+		Sinner.funs1();
 	}
 
-Notes:
-------
-1)	Static inner class can have any access specifier and it can have both static and non-static members in it.
-2)	Static members are directly available to outer class, but for non-static members object creation is compulsory.
-3)	From s class, non-static members of outer class are not available. We need to create object for that.
-4)	If the main method is in a different class, we need to create the object using the following syntax.
-Outer2.Sinner1 os=new Outer2.Sinner1 ();
+	public static void main(String args[]){
+		Sinner s2=new Sinner();
+		s2.fun2();
+		Sinner.funs1();
+	}
+}
+```
+
+- Static inner class can have any access specifier and it can have both static and non-static members in it.
+- Static members are directly available to outer class, but for non-static members object creation is compulsory.
+- From static inner class, non-static members of outer class are not available. We need to create object for that.
+- To access inner class from outside, create the object using the following syntax `Outer.Sinner os=new Outer.Sinner()`.
 
 Question:
 What is the use of inner classes?
