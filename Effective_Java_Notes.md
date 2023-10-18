@@ -158,8 +158,8 @@ Solution:The best way to ensure that callbacks are garbage collected promptly is
          references to them, for instance, by storing them only as keys in a WeakHashMap.
 
 
-								Item -7: Avoid finalizers.
-								-----------------------------
+				Item -7: Avoid finalizers.
+				--------------------------
 
 Problems of using a finalizer:
 ----------------------------------
@@ -277,7 +277,9 @@ Transitivity:
 The third requirement of the equals contract says that if one object is equal to a second and the second object is equal to a third, then the first object must be equal to the third.
 
 Let’s start with a simple immutable twodimensional integer point class:
-	public class Point {
+
+```java	
+ public class Point {
 		private final int x;
 		private final int y;
 		public Point(int x, int y) {
@@ -292,6 +294,7 @@ Let’s start with a simple immutable twodimensional integer point class:
 			}
 		... // Remainder omitted
 	}
+```
 
 Suppose you want to extend this class, adding the notion of color to a point:
 	public class ColorPoint extends Point {
