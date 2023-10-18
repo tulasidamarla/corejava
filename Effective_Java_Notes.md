@@ -297,69 +297,77 @@ Let’s start with a simple immutable twodimensional integer point class:
 ```
 
 Suppose you want to extend this class, adding the notion of color to a point:
-	public class ColorPoint extends Point {
-		private final Color color;
-		public ColorPoint(int x, int y, Color color) {
-			super(x, y);
-			this.color = color;
-		}
-		@Override public boolean equals(Object o) {
-		if (!(o instanceof ColorPoint))
-			return false;
-			return super.equals(o) && ((ColorPoint) o).color == color;
-		}
-	}	
-
+```	
+ public class ColorPoint extends Point {
+	private final Color color;
+	public ColorPoint(int x, int y, Color color) {
+		super(x, y);
+		this.color = color;
+	}
+	@Override public boolean equals(Object o) {
+	if (!(o instanceof ColorPoint))
+		return false;
+		return super.equals(o) && ((ColorPoint) o).color == color;
+	}
+}	
+```
 The problem with this method is that you might get different results when comparing a point to a color point and vice versa.
 
 To make this concrete, let’s create one point and one color point:
-		Point p = new Point(1, 2);
-		ColorPoint cp = new ColorPoint(1, 2, Color.RED);
+
+```java		
+  Point p = new Point(1, 2);
+  ColorPoint cp = new ColorPoint(1, 2, Color.RED);
+```
 
 Then p.equals(cp) returns true, while cp.equals(p) returns false.You might try to fix the problem by having ColorPoint.equals ignore color when doing “mixed comparisons”:
-		// Broken - violates transitivity!
-		@Override public boolean equals(Object o) {
-			if (!(o instanceof Point))
-				return false;
-			// If o is a normal Point, do a color-blind comparison
-			if (!(o instanceof ColorPoint))
-				return o.equals(this);
-			// o is a ColorPoint; do a full comparison
-				return super.equals(o) && ((ColorPoint)o).color == color;
-		}
+```
+ 	// Broken - violates transitivity!
+	@Override public boolean equals(Object o) {
+		if (!(o instanceof Point))
+			return false;
+		// If o is a normal Point, do a color-blind comparison
+		if (!(o instanceof ColorPoint))
+			return o.equals(this);
+		// o is a ColorPoint; do a full comparison
+			return super.equals(o) && ((ColorPoint)o).color == color;
+	}
+```
 This approach does provide symmetry, but at the expense of transitivity:
-			ColorPoint p1 = new ColorPoint(1, 2, Color.RED);
-			Point p2 = new Point(1, 2);
-			ColorPoint p3 = new ColorPoint(1, 2, Color.BLUE);
-
+```java			
+   	ColorPoint p1 = new ColorPoint(1, 2, Color.RED);
+	Point p2 = new Point(1, 2);
+	ColorPoint p3 = new ColorPoint(1, 2, Color.BLUE);
+```
 Now p1.equals(p2) and p2.equals(p3) return true, while p1.equals(p3) returns false, a clear violation of transitivity.
 
 Conclusion:There is no way to extend an instantiable class and add a value component while preserving the equals contract, unless you are willing to forgo the benefits of object-oriented abstraction. You can use composition instead of Inheritance to work with this. Here is the sample code.
-
-	// Adds a value component without violating the equals contract
-	public class ColorPoint {
-		private final Point point;
-		private final Color color;
-		public ColorPoint(int x, int y, Color color) {
-			if (color == null)
-			throw new NullPointerException();
-			point = new Point(x, y);
-			this.color = color;
-		}
-		/**
-		* Returns the point-view of this color point.
-		*/
-		public Point asPoint() {
-			return point;
-		}
-		@Override public boolean equals(Object o) {
-			if (!(o instanceof ColorPoint))
-			return false;
-			ColorPoint cp = (ColorPoint) o;
-			return cp.point.equals(point) && cp.color.equals(color);
-		}
-		... // Remainder omitted
+```java
+// Adds a value component without violating the equals contract
+public class ColorPoint {
+	private final Point point;
+	private final Color color;
+	public ColorPoint(int x, int y, Color color) {
+		if (color == null)
+		throw new NullPointerException();
+		point = new Point(x, y);
+		this.color = color;
 	}
+	/**
+	* Returns the point-view of this color point.
+	*/
+	public Point asPoint() {
+		return point;
+	}
+	@Override public boolean equals(Object o) {
+		if (!(o instanceof ColorPoint))
+		return false;
+		ColorPoint cp = (ColorPoint) o;
+		return cp.point.equals(point) && cp.color.equals(color);
+	}
+	... // Remainder omitted
+}
+```
 
 Note: you can add a value component to a subclass of an abstract class without violating the equals contract.Problems of the sort shown above won’t occur so long as it is impossible to create a superclass instance directly.
 
