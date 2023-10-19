@@ -103,8 +103,10 @@ class Collar {
 
 ### _What if a super class is not serializable but subclass is serializable?_
 
-- During deserialization any instance variables inherited from that superclass will be reset to the values they were given during the original construction of the object. This is because the nonserializable class constructor will run. For ex,
-	
+- During deserialization any instance variables inherited from that superclass(es) will be reset to the values they were given during the original construction of the object.
+- This is because the nonserializable class constructor will run. For ex,
+
+```java	
  	class Super {
 		int x=42;
 	}
@@ -116,21 +118,21 @@ class Collar {
 			this.y = y;
 		}
 	}
+```
+- If Sub object is created with new Sub(3,30) and serialized, Later when object is deserialized x and y values are
+  set to 42 and 30 respectively.
+- Static variables are NEVER saved as part of the object's state.
+- `The collection interfaces are not serializable, but the concrete collection classes in the Java API are serializable.`
 
-For ex, If Sub object is created with new Sub(3,30), Later when object is deserialized we get values of 42,30.
+### _Why is the name Serialization?_
+- Each object is saved with the serial number, hence the name object serialization.
+  
 
-Note: Static variables are NEVER saved as part of the object's state.
+## Serialization Format
 
-Note:while the collection interfaces are not serializable, the concrete collection classes in the Java API are serializable.
+- If an object is saved first time, it is saved to the output stream.
+- If an object has been previously saved, then write "same as previously saved object with serial number x".
 
-Why is the name Serialization?
-Ans: Each object is saved with the serial number, hence the name object serialization. 
-
-Note: If an object is saved first time, it is saved to the output stream. If an object has been previously saved, then write <br> 
-"same as previously saved object with serial number x".
-
-Serialization Format<br>
---------------------<br>
 A class object is saved in the following format.<br>
 
 	• 72
@@ -143,33 +145,32 @@ A class object is saved in the following format.<br>
 	• 78 (end marker)
 	• Superclass type (70 if none)
  
-Ex: If the class name is test, then it is represented as "72 00 04 Test"
+- If the class name is test, then it is represented as `72 00 04 Test`
+- `8-byte finger print:` This is nothing but the serial version id.
+  - The fingerprint is obtained by ordering the descriptions of the class, superclass, interfaces, field types, and
+     method signatures in a canonical way, and then applying the so-called Secure Hash Algorithm (SHA) to that data. 
+  - SHA finger print is always 20 byte data packet. Java serialization uses first 8 bytes of SHA code as finger print.
+- `1 byte flag:` Represents the serialization method.
+```
+// 1 byte flag
+static final byte SC_WRITE_METHOD = 1;
+// class has a writeObject method that writes additional data
+static final byte SC_SERIALIZABLE = 2;
+// class implements the Serializable interface
+static final byte SC_EXTERNALIZABLE = 4;
+// class implements the Externalizable interface
+```
 
-8-byte finger print --> This is nothing but the serial version id. The fingerprint is obtained by ordering the descriptions <br> 
-of the class, superclass, interfaces, field types, and method signatures in a canonical way, and then applying the so-called <br>
-Secure Hash Algorithm (SHA) to that data. 
-
-Note: SHA finger print is always 20 byte data packet. Java serialization uses first 8 bytes of SHA code as finger print.
-
-	1 byte flag -->
-	static final byte SC_WRITE_METHOD = 1;
-	// class has a writeObject method that writes additional data
-	static final byte SC_SERIALIZABLE = 2;
-	// class implements the Serializable interface
-	static final byte SC_EXTERNALIZABLE = 4;
-	// class implements the Externalizable interface
-
-2-byte count of data field descriptors --> 
-	00 02 // There are two data fields 
-	
-	Data field descriptor format -->
-	• 1-byte type code
-	• 2-byte length of field name
-	• Field name
-	• Class name (if the field is an object)
-
-1-byte type code<br>
-----------------<br>
+- `2-byte count of data field descriptors`
+	00 02 // There are two data fields
+- `Data field descriptor`   	
+   - Data field descriptor format
+     - 1-byte type code
+     - 2-byte length of field name
+     - Field name
+     - Class name (if the field is an object)
+```
+1-byte type code
 	B byte
 	C char
 	D double
@@ -180,14 +181,15 @@ Note: SHA finger print is always 20 byte data packet. Java serialization uses fi
 	S short
 	Z boolean
 	[ array
+```
 
-From the above description we understand that <br>
-• The serialized format contains the types and data fields of all objects.<br>
-• Each object is assigned a serial number.<br>
-• Repeated occurrences of the same object are stored as references to that serial number.
+### Conclusion
 
-Externalizable<br>
---------------<br>
+- The serialized format contains the types and data fields of all objects.
+- Each object is assigned a serial number.
+- Repeated occurrences of the same object are stored as references to that serial number.
+
+## Externalizable
 The readObject and writeObject methods only need to save and load their data fields. They should not concern themselves <br> 
 with superclass data or any other class information.
 
