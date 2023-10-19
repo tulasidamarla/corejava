@@ -1,81 +1,79 @@
 Serialization 
 -------------
-Serialization is a mechanism using which an object can be written to an output stream and read again later. Later is called <br> Deserialization.
+- Serialization is a mechanism using which an object can be written to an output stream.
+- Reading serialized data back to java object is called Deserialization.
+- A class must implement java.io.Serializable to do this.
+- Serializable is a marker interface.
+- Implementing the interface gives default serialization, which may not sufficient in all scenarios.
+- To serialize any object obj, use ObjectOutputStream.writeObject() method.
+- To deserialize any object, use ObjectInputStream.readObject() method.
+```java
+Cat c = new Cat();
+try {
+	FileOutputStream fs = new FileOutputStream("testSer.ser");
+	ObjectOutputStream os = new ObjectOutputStream(fs);
+	os.writeObject(c); // 3
+	os.close();
+} catch (Exception e) { 
+	e.printStackTrace(); 
+}
 
-To Serialize an object, class must implement java.io.Serializable. Serializable is a marker interface. It means no need to alter <br> class in any way. Simply implementing Serializable interface we get default serialization. But, this is not advisable.
+try {
+	FileInputStream fis = new FileInputStream("testSer.ser");
+	ObjectInputStream ois = new ObjectInputStream(fis);
+	c = (Cat) ois.readObject(); // 4
+	ois.close();
+} catch (Exception e) { 
+	e.printStackTrace(); 
+}
+```
+- If an object contains primitives then it is straight forward.
+- If an object contains reference to other objects, then saving object reference has no meaning.
+- If an object contains reference to other objects, the classes of those objects also must implement Serializable,
+  otherwise NotSerializableException is thrown as below.
 
-To serialize any object, we need to use ObjectOutputStream.writeObject() method.<br>
-To deserialize any object, we need to use ObjectInputStream.readObject() method.
-
-Ex:
-
-	Cat c = new Cat();
-	try {
-		FileOutputStream fs = new FileOutputStream("testSer.ser");
-		ObjectOutputStream os = new ObjectOutputStream(fs);
-		os.writeObject(c); // 3
-		os.close();
-	} catch (Exception e) { 
-		e.printStackTrace(); 
+```java  	
+class Dog implements Serializable{
+	private Collar collar;
+	private int dogSize;
+	public Dog(Collar collar, int size) {
+		this.collar = collar;
+		dogSize = size;
 	}
 	
-	try {
-		FileInputStream fis = new FileInputStream("testSer.ser");
-		ObjectInputStream ois = new ObjectInputStream(fis);
-		c = (Cat) ois.readObject(); // 4
-		ois.close();
-	} catch (Exception e) { 
-		e.printStackTrace(); 
+	public Collar getCollar() { 
+		return this.collar; 
 	}
+}
 
-Note: If an object contains primitives then it is straight forward. If an object contains reference to other objects, <br> 
-then saving object reference has no meaning. For ex, If you serialize below Dog object you will get java.io.NotSerializableException.
-	
-	class Dog implements Serializable{
-		private Collar collar;
-		private int dogSize;
-		public Dog(Collar collar, int size) {
-			this.collar = collar;
-			dogSize = size;
-		}
-		
-		public Collar getCollar() { 
-			return this.collar; 
-		}
+class Collar {
+	private int collarSize;
+	public Collar(int size) { 
+		collarSize = size; 
 	}
-
-	class Collar {
-		private int collarSize;
-		public Collar(int size) { 
-			collarSize = size; 
-		}
-		public int getCollarSize() { 
-			return collarSize; 
-		}
+	public int getCollarSize() { 
+		return collarSize; 
 	}
+}
+```
 
-Note: If Collar class also implements serializable then Dog object will be serialized.
+- If Collar class also implements serializable then Dog object will be serialized.
 
-What if we don't have access to Collar class source code?<br>
-We can subclass Collar and can serialize subclass instead. 
+### _What if we don't have access to Collar class source code?_
 
-what if subclassing is not an option because Collar class may be final, or it may be referencing other objects?<br>
-This is where transient modifier comes in. transient modifier allows to serialize an object fields except those which have <br>
-transient modifier. In the above example modify Dog class instance variable Collar like this.
+- Subclass Collar and can serialize subclass instead.
+- If subclassing is not an option because Collar class may be final, or it may be referencing other objects, then use
+  `transient` modifier with field to skip serializing the fields.
+```
 	private transient Collar collar;
-	
-Note: Now serializing the dog object saves dog object successfully without collar. If we try to deserialize dog object now we will <br> get a Collar object with null value. To avoid this situation we have set of private methods you can implement in your class that, <br> if present, will be invoked automatically during serialization and deserialization.
+```	
 
-	private void writeObject(ObjectOutputStream os) {
-		// your code for saving the Collar variables
-	}
-	private void readObject(ObjectInputStream is) {
-		// your code to read the Collar state, create a new Collar,
-		// and assign it to the Dog
-	}
-
-Ex:
-
+- Serializing the dog object saves dog object successfully without collar.
+- If dog object is deserialized later it will have null value for collar.
+- To assign custom values while serializing and deserializing, there are two private call back methods are provided as
+  shown below.
+  
+ ```java 
 	private void writeObject(ObjectOutputStream os) {
 		try {
 			os.defaultWriteObject();
@@ -96,13 +94,16 @@ Ex:
 			e.printStackTrace();
 		}
 	}	
+```
 
-Note:The most common reason to implement writeObject() and readObject() is when you have to save some part of an object's state <br> manually. If you choose, you can write and read ALL of the state yourself, but that's very rare. For this scenario, we use <br> Externalizable.
+- If part of an object state need to be handled manually while serializing and dersializing use the private callback
+  methods as shown above.
+- If the whole object state need to be managed manually use Externalizable.
+- If a super class implements Serializable all subclasses will be serialized automatically.
 
-Note: By default, If a super class/interface implements Serializable all subclasses or implementing classes will be serialized <br> automatically.
+### _What if a super class is not serializable but subclass is serializable?_
 
-What if a super class is not serializable but subclass is serializable?<br>
-Ans:During deserialization any instance variables inherited from that superclass will be reset to the values they were given during <br> the original construction of the object. This is because the nonserializable class constructor will run. For ex,
+- During deserialization any instance variables inherited from that superclass will be reset to the values they were given during the original construction of the object. This is because the nonserializable class constructor will run. For ex,
 	
  	class Super {
 		int x=42;
