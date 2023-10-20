@@ -190,43 +190,46 @@ static final byte SC_EXTERNALIZABLE = 4;
 - Repeated occurrences of the same object are stored as references to that serial number.
 
 ## Externalizable
-The readObject and writeObject methods only need to save and load their data fields. They should not concern themselves <br> 
-with superclass data or any other class information.
-
-Instead of letting the serialization mechanism save and restore object data, a class can define its own mechanism. To do this, <br> 
-a class must implement the Externalizable interface. This, in turn, requires it to define two methods:
-
-public void readExternal(ObjectInputStream in) throws IOException, ClassNotFoundException;<br>
+- The readObject and writeObject methods only need to save and load their data fields.
+- They are not concerned with superclass data or any other class information.
+- Instead of letting the serialization mechanism save and restore object data, a class can define its own mechanism by
+  implementing the Externalizable interface.
+- This, requires a class to define two methods:
+  
+```java
+public void readExternal(ObjectInputStream in) throws IOException, ClassNotFoundException;
 public void writeExternal(ObjectOutputStream out) throws IOException;
+```
 
-Unlike the readObject and writeObject methods these methods are fully responsible for saving and restoring the entire object, <br> including the superclass data. When writing an object, the serialization mechanism merely records the class of the object in the <br> output stream. When reading an externalizable object, the object input stream creates an object with the no-argument constructor <br> and then calls the readExternal method.
+- The readObject and writeObject methods are fully responsible for saving and restoring the entire object, including the superclass data.
+- When serializing object, it records the class of the object in the output stream.
+- while deserialization, it creates an object with the no-argument constructor and then calls the readExternal method.
 
-Ex:
+```java
+public void readExternal(ObjectInput s) throws IOException {
+	name = s.readUTF();
+	salary = s.readDouble();
+	hireDay = LocalDate.ofEpochDay(s.readLong());
+}
 
-	public void readExternal(ObjectInput s) throws IOException {
-		name = s.readUTF();
-		salary = s.readDouble();
-		hireDay = LocalDate.ofEpochDay(s.readLong());
-	}
-	
-	public void writeExternal(ObjectOutput s)throws IOException{
-		s.writeUTF(name);
-		s.writeDouble(salary);
-		s.writeLong(hireDay.toEpochDay());
-	}
+public void writeExternal(ObjectOutput s)throws IOException{
+	s.writeUTF(name);
+	s.writeDouble(salary);
+	s.writeLong(hireDay.toEpochDay());
+}
+```
 
-Note:Unlike the readObject and writeObject methods, which are private and can only be called by the serialization mechanism, <br> 
-the readExternal and writeExternal methods are public. In particular, readExternal potentially permits modification of the state of <br> an existing object.
+- The readExternal and writeExternal methods are public.
+- The readExternal permits modification of the state of an existing object.
 
-Serialization for Singleton<br>
----------------------------<br>
-
-	public class Elvis {
-		public static final Elvis INSTANCE = new Elvis();
-		private Elvis() { ... }
-		public void leaveTheBuilding() { ... }
-	}
-
+## Serialization for Singleton
+```java
+public class Elvis {
+	public static final Elvis INSTANCE = new Elvis();
+	private Elvis() { ... }
+	public void leaveTheBuilding() { ... }
+}
+```
 If the above class implements Serializable, then it is no longer Singleton.	It doesn’t matter whether the class uses the <br> default serialized form or a custom serialized form, nor does it matter whether the class provides an explicit readObject method. <br> Any readObject method, whether explicit or default, returns a newly created instance, which will not be the same instance that was <br> created at class initialization time.
 
 The readResolve feature allows you to substitute another instance for the one created by readObject.If the class of an object <br> 
