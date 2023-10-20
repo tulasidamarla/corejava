@@ -223,6 +223,7 @@ public void writeExternal(ObjectOutput s)throws IOException{
 - The readExternal permits modification of the state of an existing object.
 
 ## Serialization for Singleton
+
 ```java
 public class Elvis {
 	public static final Elvis INSTANCE = new Elvis();
@@ -230,47 +231,77 @@ public class Elvis {
 	public void leaveTheBuilding() { ... }
 }
 ```
-If the above class implements Serializable, then it is no longer Singleton.	It doesn’t matter whether the class uses the <br> default serialized form or a custom serialized form, nor does it matter whether the class provides an explicit readObject method. <br> Any readObject method, whether explicit or default, returns a newly created instance, which will not be the same instance that was <br> created at class initialization time.
 
-The readResolve feature allows you to substitute another instance for the one created by readObject.If the class of an object <br> 
-being deserialized defines a readResolve method with the proper declaration, this method is invoked on the newly created object <br> after it is deserialized.
+- If the above class implements either default or custom serialization, then it is no longer Singleton.
+- Any readObject method, whether explicit or default, returns a newly created instance, which will not be the same instance that was created at class initialization time.
+- The readResolve feature allows to substitute another instance for the one created by readObject.
+- If the class of an object being deserialized defines a readResolve method with the proper declaration, this method is invoked on the newly created object after it is deserialized.
 
-	// readResolve for instance control - you can do better!
-	private Object readResolve() {
-		// Return the one true Elvis and let the garbage collector
-		// take care of the Elvis impersonator.
-		return INSTANCE;
-	}
+```java
+// readResolve for instance control - you can do better!
+private Object readResolve() {
+	// Return the one true Elvis and let the garbage collector
+	// take care of the Elvis impersonator.
+	return INSTANCE;
+}
+```
+- This method ignores the deserialized object, returning the Elvis instance that was created during class initialization.
+- The serialized form of an Elvis instance need not contain any real data; all instance fields should be declared
+  transient.
+- It is possible for a determined attacker to secure a reference to the deserialized object before its readResolve
+  method is run, so better make all instance fields transient.
 
-Note:This method ignores the deserialized object, returning the distinguished Elvis instance that was created when the class was <br> initialized. Therefore, the serialized form of an Elvis instance need not contain any real data; all instance fields should be <br> declared transient.	
-Otherwise, it is possible for a determined attacker to secure a reference to the deserialized object before its readResolve method <br> is run.
+### _Cost of implementing Serialization_
 
-Serialization When to Use?<br>
---------------------------
+#### _Fleixbility_
+- A major cost of implementing Serializable is that it decreases the flexibility to change a class’s implementation once
+  it has been released.
+- When a class implements Serializable, its byte-stream encoding (or serialized form) becomes part of its exported API.
+- Once you distribute a class widely, you are generally required to support the serialized form forever, just as you are
+  required to support all other parts of the exported API.
+- If you accept the default serialized form, the class’s private and package-private instance fields become part of its
+  exported API, and the practice of minimizing access to fields loses its effectiveness as a tool for information hiding.
+- Clients attempting to serialize an instance using an old version of the class and deserialize it using the new version
+  will experience program failures.
+- Therefore, you should carefully design a high-quality serialized form that you are willing to live with for the long
+  haul. Doing so will add to the initial cost of development, but it is worth the effort.
 
-1)A major cost of implementing Serializable is that it decreases the flexibility to change a class’s implementation once it has <br> been released. When a class implements Serializable, its byte-stream encoding (or serialized form) becomes part of its exported API.<br> Once you distribute a class widely, you are generally required to support the serialized form forever, just as you are required to <br> support all other parts of the exported API. If you accept the default serialized form, the class’s private and package-private <br> instance fields become part of its exported API, and the practice of minimizing access to fields loses its effectiveness as a tool <br> for information hiding.
+#### _Use Unique Serialization UID_
 
-Clients attempting to serialize an instance using an old version of the class and deserialize it using the new version will <br> experience program failures. Therefore, you should carefully design a high-quality serialized form that you are willing to live <br> with for the long haul. Doing so will add to the initial cost of development, but it is worth the effort.
+- Every serializable class has a unique identification number associated with it.
+- If you do not specify this number explicitly by declaring a static final long field named serialVersionUID, the system automatically generates it at runtime by applying a complex  procedure to the class.
+- The automatically generated value is affected by the class’s name, the names of the interfaces it implements, and all of its public and protected members.
+- If you change any of these things in any way, for example, by adding a trivial convenience method, the automatically generated serial version UID changes.
+- If you fail to declare an explicit serial version UID, compatibility will be broken, resulting in an InvalidClassException at runtime. 
 
-Every serializable class has a unique identification number associated with it. If you do not specify this number explicitly by <br> declaring a static final long field named serialVersionUID, the system automatically generates it at runtime by applying a complex <br> procedure to the class. The automatically generated value is affected by the class’s name, the names of the interfaces it <br> implements, and all of its public and protected members. If you change any of these things in any way, for example, by adding a <br> trivial convenience method, the automatically generated serial version UID changes. If you fail to declare an explicit serial <br> version UID, compatibility will be broken, resulting in an InvalidClassException at runtime. 
+#### _Bugs_
 
-2)A second cost of implementing Serializable is that it increases the likelihood of bugs and security holes. serialization is an <br> extralinguistic mechanism for creating objects. Whether you accept the default behavior or override it, deserialization is a <br> “hidden constructor” with all of the same issues as other constructors.Because there is no explicit constructor associated with <br> deserialization, it is easy to forget that you must ensure that it guarantees all of the invariants established by the constructors <br> and that it does not allow an attacker to gain access to the internals of the object under construction. Relying on the default <br> deserialization mechanism can easily leave objects open to invariant corruption and illegal access .
+- A second cost of implementing Serializable is that it increases the likelihood of bugs and security holes. 
+- serialization is an
+- extralinguistic mechanism for creating objects. Whether you accept the default behavior or override it, deserialization is a “hidden constructor” with all of the same issues as other constructors.
+- Because there is no explicit constructor associated with deserialization, it is easy to forget that you must ensure that it guarantees all of the invariants established by the constructors and that it does not allow an attacker to gain access to the internals of the object under construction.
+- Relying on the default deserialization mechanism can easily leave objects open to invariant corruption and illegal access .
 
-3)A third cost of implementing Serializable is that it increases the testing burden associated with releasing a new version of a class.
+#### _Testing_
 
-When a serializable class is revised, it is important to check that it is possible to serialize an instance in the new release and <br> deserialize it in old releases, and vice versa. The amount of testing required is thus proportional to the product of the number of <br> serializable classes and the number of releases, which can be large. you must ensure both that the  serialization, deserialization<br> process succeeds and that it results in a faithful replica of the original object. The greater the change to a serializable class, <br> the greater the need for testing. The need is reduced if a custom serialized form is carefully designed when the class is first <br> written , but it does not vanish entirely.
+- A third cost of implementing Serializable is that it increases the testing burden associated with releasing a new version of a class.
+- When a serializable class is revised, it is important to check that it is possible to serialize an instance in the new release and  deserialize it in old releases, and vice versa.
+- The amount of testing required is thus proportional to the product of the number of serializable classes and the number of releases, which can be large.
+- you must ensure both that the  serialization, deserialization process succeeds and that it results in a faithful replica of the original object.
+- The greater the change to a serializable class, the greater the need for testing.
+- The need is reduced if a custom serialized form is carefully designed when the class is first written , but it does not vanish entirely.
 
-Benefits:<br>
----------<br>
-Implementing the Serializable interface is not a decision to be undertaken lightly. It offers real benefits. It is essential if a<br> class is to participate in a framework that relies on serialization for object transmission or persistence. Also, it greatly eases<br> the use of a class as a component in another class that must implement Serializable. There are, however, many real costs associated<br> with implementing Serializable. Each time you design a class, weigh the costs against the benefits. As a rule of thumb, value<br> classes such as Date and BigInteger should implement Serializable, as should most collection classes. Classes representing active<br> entities, such as thread pools, should rarely implement Serializable.
+### Benefits:
 
-Classes designed for inheritance should rarely implement Serializable, and interfaces should rarely extend it. For example, if a<br> class or interface exists primarily to participate in a framework that requires all participants to implement Serializable, then it<br> makes perfect sense for the class or interface to implement or extend Serializable. 
+- Implementing the Serializable interface is not a decision to be undertaken lightly. It offers real benefits. It is essential if a class is to participate in a framework that relies on serialization for object transmission or persistence. Also, it greatly eases the use of a class as a component in another class that must implement Serializable. There are, however, many real costs associated with implementing Serializable. Each time you design a class, weigh the costs against the benefits. As a rule of thumb, value classes such as Date and BigInteger should implement Serializable, as should most collection classes. Classes representing active<br> entities, such as thread pools, should rarely implement Serializable.
 
-Classes designed for inheritance that do implement Serializable include Throwable, Component, and HttpServlet. Throwable implements<br> Serializable so exceptions from remote method invocation (RMI) can be passed from server to client. Component implements Serializable <br> so GUIs can be sent, saved, and restored. HttpServlet implements Serializable so session state can be cached.
+- Classes designed for inheritance should rarely implement Serializable, and interfaces should rarely extend it. For example, if a class or interface exists primarily to participate in a framework that requires all participants to implement Serializable, then it makes perfect sense for the class or interface to implement or extend Serializable. 
 
-If a class that is designed for inheritance is not serializable, it may be impossible to write a serializable subclass. Specifically,<br> it will be impossible if the superclass does not provide an accessible parameterless constructor. Therefore, you should<br> consider providing a parameterless constructor on nonserializable classes designed for inheritance. Often this requires no effort<br> because many classes designed for inheritance have no state, but this is not always the case.
+- Classes designed for inheritance that do implement Serializable include Throwable, Component, and HttpServlet. Throwable implements Serializable so exceptions from remote method invocation (RMI) can be passed from server to client. Component implements Serializable so GUIs can be sent, saved, and restored. HttpServlet implements Serializable so session state can be cached.
 
-Inner classes should not implement Serializable. They use compiler-generated synthetic fields to store references to enclosing<br> instances and to store values of local variables from enclosing scopes. How these fields correspond to the class definition is<br> unspecified, as are the names of anonymous and local classes. Therefore, the default serialized form of an inner class is illdefined.<br> A static member class can, however, implement Serializable.
+- If a class that is designed for inheritance is not serializable, it may be impossible to write a serializable subclass. Specifically, it will be impossible if the superclass does not provide an accessible parameterless constructor. Therefore, you should consider providing a parameterless constructor on nonserializable classes designed for inheritance. Often this requires no effort because many classes designed for inheritance have no state, but this is not always the case.
+
+- Inner classes should not implement Serializable. They use compiler-generated synthetic fields to store references to enclosing instances and to store values of local variables from enclosing scopes. How these fields correspond to the class definition is unspecified, as are the names of anonymous and local classes. Therefore, the default serialized form of an inner class is illdefined. A static member class can, however, implement Serializable.
 
 
 
