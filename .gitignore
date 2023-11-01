@@ -1,0 +1,6 @@
+
+java17/.gradle/
+.idea/
+.DS_Store
+Java17/gradle/wrapper
+corejava.iml
